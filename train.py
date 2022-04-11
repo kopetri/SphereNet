@@ -115,4 +115,4 @@ if __name__ == '__main__':
     )
     
     model = ShpereNetModule(args)
-    trainer.fit(model=model, train_dataloaders=train_loader)
+    trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=val_loader)
