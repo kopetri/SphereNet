@@ -14,7 +14,11 @@ class ShpereNetModule(pl.LightningModule):
     def forward(self, batch, batch_idx, name):
         X, Y = batch
         Y_hat, _ = self.model(X)
+        assert not torch.any(torch.isnan(X)), "X has NaN values!"
+        assert not torch.any(torch.isnan(Y)), "GT has NaN values!"
+        assert not torch.any(torch.isnan(Y_hat)), "prediction has NaN values!"
         loss = self.criterion(Y_hat, Y)
+        assert not torch.any(torch.isnan(loss)), "Loss has NaN values!"
         self.log('{}_loss'.format(name), loss, prog_bar=True)
         return loss
 
