@@ -89,6 +89,7 @@ class Structured3DDataset(Dataset):
         xyz[2, :] =   np.sin(vertical_angle)
 
         target = xyz * depth
+        assert not np.any(np.isnan(target)), "target has NaN"
 
         xyz = np.transpose(xyz, (1, 0))
         target = np.transpose(target, (1, 0))
@@ -101,15 +102,15 @@ class Structured3DDataset(Dataset):
         center = minimum + 0.5 * (maximum - minimum)
         
         target -= center # center around 0
-
+        assert not np.any(np.isnan(target)), "target has NaN"
 
         minimum = np.min(target, axis=0)
         maximum = np.max(target, axis=0)
 
         dim = maximum - minimum
         
-
         target /= dim # normalize to -0.5 and 0.5
+        assert not np.any(np.isnan(target)), "target has NaN"
         target *= 2.0 #     scale to -1.0 and 1
 
 
@@ -130,6 +131,9 @@ class Structured3DDataset(Dataset):
 
 
 if __name__ == '__main__':
-    dataset = Structured3DDataset("F:/data/Structured3D", "train")
+    dataset = Structured3DDataset("F:/data/Structured3D", "train", shuffle=False)
+    i = 0
     for d in dataset:
-        break
+        if i > 100:
+            break
+        i += 1
