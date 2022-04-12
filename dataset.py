@@ -77,6 +77,7 @@ class Structured3DDataset(Dataset):
         color = img[indices]
         depth = depth[indices]
 
+        assert np.all(depth == 0), "depth is 0"
 
         vert_fov = np.pi   
         vertical_angle = vert_fov / 2 - (V * vert_fov) / H
@@ -98,7 +99,8 @@ class Structured3DDataset(Dataset):
         minimum = np.min(target, axis=0)
         maximum = np.max(target, axis=0)
 
-        assert all([v > 0 for v in (maximum - minimum)]), "wrong xyz: {}".format(maximum - minimum)
+        assert all([v > 0 for v in (np.max(xyz, axis=0) - np.min(xyz, axis=0))]), "wrong xyz: {}".format(np.max(xyz, axis=0) - np.min(xyz, axis=0))
+        assert all([v > 0 for v in (np.max(target, axis=0) - np.min(target, axis=0))]), "wrong target: {}".format(np.max(target, axis=0) - np.min(target, axis=0))
 
         
         center = minimum + 0.5 * (maximum - minimum)
