@@ -98,7 +98,7 @@ class Structured3DDataset(Dataset):
         minimum = np.min(target, axis=0)
         maximum = np.max(target, axis=0)
 
-        assert all([v > 0 for v in (maximum - minimum)]), "wrong xyz: ".format(maximum - minimum)
+        assert all([v > 0 for v in (maximum - minimum)]), "wrong xyz: {}".format(maximum - minimum)
 
         
         center = minimum + 0.5 * (maximum - minimum)
@@ -110,7 +110,7 @@ class Structured3DDataset(Dataset):
         maximum = np.max(target, axis=0)
 
         dim = maximum - minimum
-        assert all([v > 0 for v in dim]), "dim == 0"
+        assert all([v > 0 for v in dim]), "dim == 0: {}".format(dim)
         
         target /= dim # normalize to -0.5 and 0.5
         assert not np.any(np.isnan(target)), "target has NaN"
