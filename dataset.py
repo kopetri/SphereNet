@@ -98,7 +98,7 @@ class Structured3DDataset(Dataset):
         minimum = np.min(target, axis=0)
         maximum = np.max(target, axis=0)
 
-        assert (maximum - minimum) > 0, "wrong xyz"
+        assert all([v > 0 for v in (maximum - minimum)]), "wrong xyz: ".format(maximum - minimum)
 
         
         center = minimum + 0.5 * (maximum - minimum)
