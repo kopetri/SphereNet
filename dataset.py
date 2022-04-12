@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 from torch.utils.data.dataset import Dataset
 import torchvision.transforms.functional as TF
+from tqdm import tqdm
 
 class Structured3DDataset(Dataset):
     def __init__(self, path, split, shuffle=True):
@@ -42,7 +43,14 @@ class Structured3DDataset(Dataset):
         return [img for img in self.path.glob("**/*") if img.parent.name == "full" and img.stem == "rgb_rawlight" and img.parents[4].name in self.scenes]
 
     def load_depth(self):
-        return [depth for depth in self.path.glob("**/*") if depth.parent.name == "empty" and depth.stem == "depth" and depth.parents[4].name in self.scenes]
+        depths = []
+        for depth_f in tqdm([depth for depth in self.path.glob("**/*") if depth.parent.name == "empty" and depth.stem == "depth" and depth.parents[4].name in self.scenes], desc='Filter depths maps.'):
+            depth = cv2.imread(depth_f.as_posix(), cv2.IMREAD_ANYDEPTH)
+            H,W = depth.shape
+            zero_depth_rate = np.sum(depth==0) / (H * W)
+            if zero_depth_rate < 0.01:
+                depths.append(depth_f)
+        return depths
 
     def __len__(self):
         return len(self.imgs)
@@ -56,6 +64,9 @@ class Structured3DDataset(Dataset):
         img = cv2.imread(img_f.as_posix(), cv2.IMREAD_COLOR)
         H,W,C = img.shape
         depth = cv2.imread(depth_f.as_posix(), cv2.IMREAD_ANYDEPTH)
+
+        zero_depth_rate = np.sum(depth==0) / (H * W)
+        assert zero_depth_rate < 0.01, "0 depth rate: {}".format(zero_depth_rate)
 
         U = np.tile(np.arange(0, W), [H, 1])
         V = np.repeat(np.arange(0, H), W).reshape((H, W))
