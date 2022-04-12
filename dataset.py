@@ -48,12 +48,12 @@ class Structured3DDataset(Dataset):
         return len(self.imgs)
 
     def __getitem__(self, idx):
-        img = self.imgs[idx]
+        img_f = self.imgs[idx]
         depth_f = self.depths[idx]
 
-        assert img.parents[2].name == depth.parents[2].name
+        assert img_f.parents[2].name == depth_f.parents[2].name
 
-        img = cv2.imread(img.as_posix(), cv2.IMREAD_COLOR)
+        img = cv2.imread(img_f.as_posix(), cv2.IMREAD_COLOR)
         H,W,C = img.shape
         depth = cv2.imread(depth_f.as_posix(), cv2.IMREAD_ANYDEPTH)
 
