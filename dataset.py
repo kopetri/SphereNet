@@ -57,8 +57,6 @@ class Structured3DDataset(Dataset):
         H,W,C = img.shape
         depth = cv2.imread(depth_f.as_posix(), cv2.IMREAD_ANYDEPTH)
 
-        assert not np.any(depth == 0), "depth is corrupt for file: {}".format(depth_f.as_posix())
-
         U = np.tile(np.arange(0, W), [H, 1])
         V = np.repeat(np.arange(0, H), W).reshape((H, W))
 
@@ -79,7 +77,7 @@ class Structured3DDataset(Dataset):
         color = img[indices]
         depth = depth[indices]
 
-        assert not np.any(depth == 0), "depth is 0: {}".format(depth_f.as_posix())
+        assert not np.all(depth == 0), "depth is 0: {}".format(depth_f.as_posix())
 
         vert_fov = np.pi   
         vertical_angle = vert_fov / 2 - (V * vert_fov) / H
@@ -101,7 +99,7 @@ class Structured3DDataset(Dataset):
         minimum = np.min(target, axis=0)
         maximum = np.max(target, axis=0)
 
-        assert all([v > 0 for v in (np.max(xyz, axis=0) - np.min(xyz, axis=0))]), "wrong xyz: {}".format(np.max(xyz, axis=0) - np.min(xyz, axis=0))
+        assert all([v > 0 for v in (np.max(xyz, axis=0)    - np.min(xyz, axis=0))]), "wrong xyz: {}".format(np.max(xyz, axis=0) - np.min(xyz, axis=0))
         assert all([v > 0 for v in (np.max(target, axis=0) - np.min(target, axis=0))]), "wrong target: {}".format(np.max(target, axis=0) - np.min(target, axis=0))
 
         
