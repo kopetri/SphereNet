@@ -49,13 +49,15 @@ class Structured3DDataset(Dataset):
 
     def __getitem__(self, idx):
         img = self.imgs[idx]
-        depth = self.depths[idx]
+        depth_f = self.depths[idx]
 
         assert img.parents[2].name == depth.parents[2].name
 
         img = cv2.imread(img.as_posix(), cv2.IMREAD_COLOR)
         H,W,C = img.shape
-        depth = cv2.imread(depth.as_posix(), cv2.IMREAD_ANYDEPTH)
+        depth = cv2.imread(depth_f.as_posix(), cv2.IMREAD_ANYDEPTH)
+
+        assert np.all(depth == 0), "depth is corrupt for file: {}".format(depth_f.as_posix())
 
         U = np.tile(np.arange(0, W), [H, 1])
         V = np.repeat(np.arange(0, H), W).reshape((H, W))
@@ -77,7 +79,7 @@ class Structured3DDataset(Dataset):
         color = img[indices]
         depth = depth[indices]
 
-        assert np.all(depth == 0), "depth is 0"
+        assert np.all(depth == 0), "depth is 0: {}".format(depth_f.as_posix())
 
         vert_fov = np.pi   
         vertical_angle = vert_fov / 2 - (V * vert_fov) / H
