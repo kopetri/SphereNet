@@ -12,8 +12,8 @@ class Structured3DDataset(Dataset):
         self.split = split
         self.path = Path(path)
         self.scenes = self.load_scenes()
-        self.imgs = self.load_images()
-        self.depths = self.load_depth()
+        #self.imgs = self.load_images()
+        self.imgs, self.depths = self.load_depth()
         self.shuffle = shuffle
         print("Found {} images for split {}.".format(len(self.imgs), self.split))
 
@@ -39,18 +39,20 @@ class Structured3DDataset(Dataset):
         elif self.split == "test":
             return [s.name for s in self.path.glob("*") if s.is_dir() and 3250 <= int(s.name.replace("scene_", "")) <= 3499] # scene_03250 to scene_03499
 
-    def load_images(self):
-        return [img for img in self.path.glob("**/*") if img.parent.name == "full" and img.stem == "rgb_rawlight" and img.parents[4].name in self.scenes]
+    #def load_images(self):
+    #    return [img for img in self.path.glob("**/*") if img.parent.name == "full" and img.stem == "rgb_rawlight" and img.parents[4].name in self.scenes]
 
     def load_depth(self):
         depths = []
+        imgs = []
         for depth_f in tqdm([depth for depth in self.path.glob("**/*") if depth.parent.name == "empty" and depth.stem == "depth" and depth.parents[4].name in self.scenes], desc='Filter depths maps.'):
             depth = cv2.imread(depth_f.as_posix(), cv2.IMREAD_ANYDEPTH)
             H,W = depth.shape
             zero_depth_rate = np.sum(depth==0) / (H * W)
             if zero_depth_rate < 0.01:
                 depths.append(depth_f)
-        return depths
+                imgs.append(depth_f.parents[1]/"full"/"rgb_rawlight.png")
+        return imgs, depths
 
     def __len__(self):
         return len(self.imgs)
